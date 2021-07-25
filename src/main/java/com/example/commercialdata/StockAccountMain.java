@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.*;
+
 class Transaction{
 	int id;
 	String Customer_name;
@@ -23,15 +24,18 @@ class Transaction{
 	}
 	public void display()
 	{
-		System.out.println(this.id+"\t"+this.Customer_name+"\t"+this.Transaction_time+"\t"+this.Sharename+"\t"+this.sharecount+"\t"+this.ordertype);
+		System.out.println(this.id+"\t"+this.Customer_name+"\t\t"+this.Transaction_time+"\t\t"+this.Sharename+"\t\t"+this.sharecount+"\t\t"+this.ordertype);
 	}
 
 }
 public class StockAccountMain {
 	public static void main(String[] args) {
+		//calling StockAccountManagement by stockservice object
 		StockAccountManagement stockservice = new StockAccountManagementImpl();
+		//initialized queue with linkedlist
 		Queue<Transaction> Transaction_queue= new LinkedList<>();
-		HashMap<String, HashMap<String,Integer>> Customers = new HashMap<>(); 
+		//initialization of customer details by HashMap
+		HashMap<String, HashMap<String,Integer>> customers = new HashMap<>(); 
 		int transaction_id=0;
 		@SuppressWarnings("resource")
 		Scanner scanner = new Scanner(System.in);
@@ -90,7 +94,8 @@ public class StockAccountMain {
 			case 5:
 				System.out.println("Enter your Name");
 				String Customer_Name=scanner.next();
-				if(!Customers.containsKey(Customer_Name))
+				//checking if name exists in custmer list
+				if(!customers.containsKey(Customer_Name))
 				{
 					System.out.println("You are not a Valid User");
 					break;
@@ -100,23 +105,27 @@ public class StockAccountMain {
 				System.out.println("Enter the count you want to buy : ");
 				int count=scanner.nextInt();
 				stockservice.buyStocks(stockName,count);
+				//crearing separate hashmap for finding how many shares 
 				HashMap<String, Integer> temp_hash = new HashMap<String,Integer>();
-				temp_hash=Customers.get(Customer_Name);
+				temp_hash=customers.get(Customer_Name);
+				//adding stock name and count to hasmap
 				if(temp_hash==null)
 				{
 					temp_hash=new HashMap<String,Integer>();
 					temp_hash.put(stockName,count);
 				}
+				//adding existing stock to new stock
 				else if(temp_hash.containsKey(stockName))
 				{
 					int Stock_count=temp_hash.get(stockName);
 					temp_hash.put(stockName,count+Stock_count);
 				}
+				//adding share
 				else
 				{
 					temp_hash.put(stockName,count);
 				}
-				Customers.put(Customer_Name,temp_hash);
+				customers.put(Customer_Name,temp_hash);
 				stockservice.getStockDetails();
 				transaction_id++;
 				Transaction temp=new Transaction(transaction_id,Customer_Name,stockName,count,"Buy");
@@ -125,13 +134,13 @@ public class StockAccountMain {
 			case 6:
 				System.out.println("Enter your Name");
 				String Customer_Name1=scanner.next();
-				if(!Customers.containsKey(Customer_Name1))
+				if(!customers.containsKey(Customer_Name1))
 				{
 					System.out.println("You are not a Valid User");
 					break;
 				}
 				HashMap<String, Integer> temp_hash2 = new HashMap<String,Integer>();
-				temp_hash2=Customers.get(Customer_Name1);
+				temp_hash2=customers.get(Customer_Name1);
 				System.out.println("Enter the stock you want to sell :");
 				String stockName1=scanner.next();
 				if(!temp_hash2.containsKey(stockName1))
@@ -139,7 +148,8 @@ public class StockAccountMain {
 					System.out.println("You Did not have this Stock so you cannot Sell");
 					break;
 				}
-				System.out.println("Enter the count you want to buy : ");
+				System.out.println("Enter the count you want to sell : ");
+				//if count is more than existing stock 
 				int count1=scanner.nextInt();
 				if(temp_hash2.get(stockName1)<count1)
 				{
@@ -149,20 +159,21 @@ public class StockAccountMain {
 				stockservice.sellStocks(stockName1,count1);
 				stockservice.getStockDetails();
 				transaction_id++;
-				Transaction temp1=new Transaction(transaction_id,stockName1,stockName1,count1,"Sell");
+				Transaction temp1=new Transaction(transaction_id,Customer_Name1,stockName1,count1,"Sell");
 				Transaction_queue.add(temp1);
 				break;
 			case 7:
-				System.out.println("Id\tCustomerName\tDateandTime\t\tStockName\tCount\torderType");
+				//displaying transaction details
+				System.out.println("Id\tCustomerName\t\tDateandTime\t\tStockName\t\tCount\t\ttransaction");
 				Iterator iterator = Transaction_queue.iterator();
-    			while(iterator.hasNext()){
-        			Transaction element = (Transaction) iterator.next();
-        			element.display();
-    			}
+				while(iterator.hasNext()){
+					Transaction element = (Transaction) iterator.next();
+					element.display();
+				}
 				break;
 			case 8:
 				System.out.println("Enter the Name:");
-				Customers.put(scanner.next(),null);
+				customers.put(scanner.next(),null);
 				break;
 			case 9:
 				break;
